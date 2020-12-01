@@ -6,6 +6,19 @@ services:
       - "8080:8080"
     networks:
       - rede-comunicacao
+    depends_on:
+      - mysqldb
+  mysqldb:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: comunicacaodb
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
+    container_name: comunicacaodb
+    networks:
+      - rede-comunicacao
 networks:
   rede-comunicacao:
     driver: bridge
