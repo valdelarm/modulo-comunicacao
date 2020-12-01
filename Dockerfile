@@ -7,4 +7,4 @@ RUN mvn package
 FROM openjdk:11
 WORKDIR /app
 COPY --from=maven app/target/*.jar app.jar
-ENTRYPOINT ["java","-jar","app.jgiar"]
+ENTRYPOINT ["java","-jar","app.jar"]
