@@ -1,0 +1,11 @@
+version: "3"
+services:
+  modulo-comunicacao:
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - rede-comunicacao
+networks:
+  rede-comunicacao:
+    driver: bridge
