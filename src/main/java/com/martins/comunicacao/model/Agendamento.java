@@ -11,7 +11,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -50,14 +49,8 @@ public class Agendamento {
   @Column(name = "numero_celular")
   private String numeroCelular;
 
-  @Column(name = "descricao_erro")
-  private String descricaoErro;
-
   @Column(name = "hora_criacao")
   private LocalDateTime horaCriacao;
-
-  @Column(name = "ultima_atualizacao")
-  private LocalDateTime ultimaAtualizacao;
 
   public Long getId() {
     return id;
@@ -119,29 +112,12 @@ public class Agendamento {
     this.numeroCelular = numeroCelular;
   }
 
-  public String getDescricaoErro() {
-    return descricaoErro;
-  }
-
-  public void setDescricaoErro(String descricaoErro) {
-    this.descricaoErro = descricaoErro;
-  }
-
   public LocalDateTime getHoraCriacao() {
     return horaCriacao;
   }
 
   @PrePersist
-  public void setHoraCriacao() {
+  private void setHoraCriacao() {
     this.horaCriacao = LocalDateTime.now();
-  }
-
-  public LocalDateTime getUltimaAtualizacao() {
-    return ultimaAtualizacao;
-  }
-
-  @PreUpdate
-  public void setUltimaAtualizacao() {
-    this.ultimaAtualizacao = LocalDateTime.now();
   }
 }
