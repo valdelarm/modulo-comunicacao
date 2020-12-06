@@ -9,6 +9,8 @@ import static java.util.Objects.isNull;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import javax.persistence.NoResultException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,7 +32,15 @@ public class AgendamentoService {
 
     return RespostaStatusAgendamentoDto.paraDto(
         agendamento.orElseThrow(
-            () ->new NoSuchElementException("Nao existe agendamento para o destinatário solicitado")));
+            () -> new NoSuchElementException("Nao existe agendamento para o destinatário solicitado")));
+  }
+
+  public void removeAgendamento(final Long agendamentoId) {
+    try {
+      repository.deleteById(agendamentoId);
+    } catch (EmptyResultDataAccessException e) {
+      throw new NoResultException("Não há agendamento para remover com o ID " + agendamentoId);
+    }
   }
 
   private void validaDadosDeEntrada(final RequisicaoAgendamentoDto requisicao) {
