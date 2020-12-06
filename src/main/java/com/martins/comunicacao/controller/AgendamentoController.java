@@ -1,6 +1,7 @@
 package com.martins.comunicacao.controller;
 
 import com.martins.comunicacao.dto.RequisicaoAgendamentoDto;
+import com.martins.comunicacao.dto.RespostaStatusAgendamentoDto;
 import com.martins.comunicacao.model.Agendamento;
 import com.martins.comunicacao.service.AgendamentoService;
 import io.swagger.annotations.Api;
@@ -10,6 +11,8 @@ import java.net.URISyntaxException;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +31,7 @@ public class AgendamentoController {
   }
 
   @PostMapping
-  @ApiOperation(value = "Cria  um novo agendamento para comunicação com o cliente", response = String.class)
+  @ApiOperation(value = "Cria  um novo agendamento para comunicação com o cliente", response = Agendamento.class)
   public ResponseEntity criarAgendamento(@RequestBody @Valid RequisicaoAgendamentoDto requisicao) {
     try {
       Agendamento resposta = agendamentoService.criarAgendamento(requisicao);
@@ -36,5 +39,12 @@ public class AgendamentoController {
     } catch (URISyntaxException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+  }
+
+  @GetMapping("/{id}")
+  @ApiOperation(value = "Recupera agendamento", response = RespostaStatusAgendamentoDto.class)
+  public ResponseEntity recuperaAgendamento(@PathVariable("id") Long agendamentoId) {
+      RespostaStatusAgendamentoDto resposta = agendamentoService.recuperarAgendamento(agendamentoId);
+      return ResponseEntity.ok(resposta);
   }
 }

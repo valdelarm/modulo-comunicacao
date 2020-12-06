@@ -1,10 +1,14 @@
 package com.martins.comunicacao.service;
 
 import com.martins.comunicacao.dto.RequisicaoAgendamentoDto;
+import com.martins.comunicacao.dto.RespostaStatusAgendamentoDto;
 import com.martins.comunicacao.enumeration.TipoComunicacao;
 import com.martins.comunicacao.model.Agendamento;
 import com.martins.comunicacao.repository.AgendamentoRepository;
 import static java.util.Objects.isNull;
+
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +23,14 @@ public class AgendamentoService {
   public Agendamento criarAgendamento(final RequisicaoAgendamentoDto requisicao) {
     validaDadosDeEntrada(requisicao);
     return repository.save(requisicao.paraEntidade());
+  }
+
+  public RespostaStatusAgendamentoDto recuperarAgendamento(final Long agendamentoId) {
+    Optional<Agendamento> agendamento = repository.findById(agendamentoId);
+
+    return RespostaStatusAgendamentoDto.paraDto(
+        agendamento.orElseThrow(
+            () ->new NoSuchElementException("Nao existe agendamento para o destinatário solicitado")));
   }
 
   private void validaDadosDeEntrada(final RequisicaoAgendamentoDto requisicao) {
