@@ -1,19 +1,14 @@
 package com.martins.comunicacao.service;
 
 import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_AGENDAMENTO_INEXISTENTE;
-import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_DATA_INVALIDA;
-import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_DESTINATARIO_OBRIGATORIO;
 import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_REMOVER_AGENDAMENTO;
-import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_TIPO_COMUNICACAO;
-import static java.util.Objects.isNull;
 
 import com.martins.comunicacao.dto.RequisicaoAgendamentoDto;
 import com.martins.comunicacao.dto.RespostaStatusAgendamentoDto;
-import com.martins.comunicacao.enumeration.TipoComunicacao;
 import com.martins.comunicacao.exception.AgendamentoException;
 import com.martins.comunicacao.model.Agendamento;
 import com.martins.comunicacao.repository.AgendamentoRepository;
-import java.time.LocalDateTime;
+import com.martins.comunicacao.validator.AgendamentoValidator;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,34 +52,8 @@ public class AgendamentoService {
   }
 
   private void validaDadosDeEntrada(final RequisicaoAgendamentoDto requisicao) {
-    validaDadosDestinatario(requisicao);
-    ehUmaDataFutura(requisicao.getDataHoraEnvio());
-    if (TipoComunicacao.EMAIL.equals(requisicao.getTipoComunicacao())
-        && (isNull(requisicao.getEmail()) || requisicao.getEmail().isBlank())) {
-      throw new AgendamentoException(ERRO_TIPO_COMUNICACAO.getCodigo(), ERRO_TIPO_COMUNICACAO.getMensagem());
-    }
-  }
-
-  /**
-   * Verifica se a data e hora informada é futura.
-   * @param dataHoraEnvio
-   */
-  private void ehUmaDataFutura(LocalDateTime dataHoraEnvio) {
-    if (dataHoraEnvio.isBefore(LocalDateTime.now())) {
-      throw new AgendamentoException(ERRO_DATA_INVALIDA.getCodigo(),
-          ERRO_DATA_INVALIDA.getMensagem());
-    }
-  }
-
-  private void validaDadosDestinatario(final RequisicaoAgendamentoDto requisicao) {
-    if (destinatarioEhNull(requisicao)
-        || (requisicao.getCelular().isBlank() && requisicao.getEmail().isBlank())) {
-      throw new AgendamentoException(ERRO_DESTINATARIO_OBRIGATORIO.getCodigo(),
-          ERRO_DESTINATARIO_OBRIGATORIO.getMensagem());
-    }
-  }
-
-  private boolean destinatarioEhNull(final RequisicaoAgendamentoDto requisicao) {
-    return isNull(requisicao.getCelular()) && isNull(requisicao.getEmail());
+    AgendamentoValidator.validaDadosDestinatario(requisicao);
+    AgendamentoValidator.validaData(requisicao.getDataHoraEnvio());
+    AgendamentoValidator.validaTipoComunicacao(requisicao);
   }
 }
