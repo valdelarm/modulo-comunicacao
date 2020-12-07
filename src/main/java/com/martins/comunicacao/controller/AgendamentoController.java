@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiOperation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,13 +32,10 @@ public class AgendamentoController {
 
   @PostMapping
   @ApiOperation(value = "Cria  um novo agendamento para comunicação com o cliente", response = Agendamento.class)
-  public ResponseEntity criarAgendamento(@RequestBody @Valid RequisicaoAgendamentoDto requisicao) {
-    try {
+  public ResponseEntity criarAgendamento(@RequestBody @Valid RequisicaoAgendamentoDto requisicao)
+      throws URISyntaxException {
       Agendamento resposta = agendamentoService.criarAgendamento(requisicao);
       return ResponseEntity.created(new URI("/agendamentos/" + resposta.getId())).body(resposta);
-    } catch (URISyntaxException e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
   }
 
   @GetMapping("/{id}")
