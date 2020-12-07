@@ -37,6 +37,18 @@ public class RequisicaoAgendamentoDto {
     return entidade;
   }
 
+  @Override
+  public String toString() {
+    return "RequisicaoAgendamentoDto{" +
+        "dataHoraEnvio=" + dataHoraEnvio +
+        ", email='" + email + '\'' +
+        ", celular='" + celular + '\'' +
+        ", mensagem='" + mensagem + '\'' +
+        ", tipoComunicacao=" + tipoComunicacao +
+        ", nome='" + nome + '\'' +
+        '}';
+  }
+
   public LocalDateTime getDataHoraEnvio() {
     return dataHoraEnvio;
   }

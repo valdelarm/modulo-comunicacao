@@ -7,9 +7,12 @@ import com.martins.comunicacao.model.Agendamento;
 import com.martins.comunicacao.repository.AgendamentoRepository;
 import static java.util.Objects.isNull;
 
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import javax.persistence.NoResultException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +20,20 @@ import org.springframework.stereotype.Service;
 public class AgendamentoService {
 
   private final AgendamentoRepository repository;
+  private Logger log = LoggerFactory.getLogger(this.getClass());
 
   public AgendamentoService(AgendamentoRepository repository) {
     this.repository = repository;
   }
 
   public Agendamento criarAgendamento(final RequisicaoAgendamentoDto requisicao) {
+    log.info("Criacao de agendamento para: " + requisicao);
     validaDadosDeEntrada(requisicao);
     return repository.save(requisicao.paraEntidade());
   }
 
   public RespostaStatusAgendamentoDto recuperarAgendamento(final Long agendamentoId) {
+    log.info("Recuperando agendamento id: " + agendamentoId);
     Optional<Agendamento> agendamento = repository.findById(agendamentoId);
 
     return RespostaStatusAgendamentoDto.paraDto(
@@ -36,6 +42,7 @@ public class AgendamentoService {
   }
 
   public void removeAgendamento(final Long agendamentoId) {
+    log.info("Removendo agendamento id: " + agendamentoId);
     try {
       repository.deleteById(agendamentoId);
     } catch (EmptyResultDataAccessException e) {
@@ -45,9 +52,20 @@ public class AgendamentoService {
 
   private void validaDadosDeEntrada(final RequisicaoAgendamentoDto requisicao) {
     validaDadosDestinatario(requisicao);
+    ehUmaDataFutura(requisicao.getDataHoraEnvio());
     if (TipoComunicacao.EMAIL.equals(requisicao.getTipoComunicacao())
         && (isNull(requisicao.getEmail()) || requisicao.getEmail().isBlank())) {
       throw new IllegalArgumentException("O tipo de comunicacao EMAIL requer que o email seja preenchido");
+    }
+  }
+
+  /**
+   * Verifica se a data e hora informada é futura.
+   * @param dataHoraEnvio
+   */
+  private void ehUmaDataFutura(LocalDateTime dataHoraEnvio) {
+    if (dataHoraEnvio.isBefore(LocalDateTime.now())) {
+      throw new IllegalArgumentException("Data inválida. A data de envio de ser uma data futura");
     }
   }
 
