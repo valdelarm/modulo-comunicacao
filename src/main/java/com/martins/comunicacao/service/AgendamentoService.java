@@ -1,16 +1,20 @@
 package com.martins.comunicacao.service;
 
+import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_AGENDAMENTO_INEXISTENTE;
+import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_DATA_INVALIDA;
+import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_DESTINATARIO_OBRIGATORIO;
+import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_REMOVER_AGENDAMENTO;
+import static com.martins.comunicacao.enumeration.ErrorCode.ERRO_TIPO_COMUNICACAO;
+import static java.util.Objects.isNull;
+
 import com.martins.comunicacao.dto.RequisicaoAgendamentoDto;
 import com.martins.comunicacao.dto.RespostaStatusAgendamentoDto;
 import com.martins.comunicacao.enumeration.TipoComunicacao;
+import com.martins.comunicacao.exception.AgendamentoException;
 import com.martins.comunicacao.model.Agendamento;
 import com.martins.comunicacao.repository.AgendamentoRepository;
-import static java.util.Objects.isNull;
-
 import java.time.LocalDateTime;
-import java.util.NoSuchElementException;
 import java.util.Optional;
-import javax.persistence.NoResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -38,7 +42,8 @@ public class AgendamentoService {
 
     return RespostaStatusAgendamentoDto.paraDto(
         agendamento.orElseThrow(
-            () -> new NoSuchElementException("Nao existe agendamento para o destinatário solicitado")));
+            () -> new AgendamentoException(ERRO_AGENDAMENTO_INEXISTENTE.getCodigo(),
+                ERRO_AGENDAMENTO_INEXISTENTE.getMensagem())));
   }
 
   public void removeAgendamento(final Long agendamentoId) {
@@ -46,7 +51,8 @@ public class AgendamentoService {
     try {
       repository.deleteById(agendamentoId);
     } catch (EmptyResultDataAccessException e) {
-      throw new NoResultException("Não há agendamento para remover com o ID " + agendamentoId);
+      throw new AgendamentoException(ERRO_REMOVER_AGENDAMENTO.getCodigo(),
+          String.format(ERRO_REMOVER_AGENDAMENTO.getMensagem(), agendamentoId));
     }
   }
 
@@ -55,7 +61,7 @@ public class AgendamentoService {
     ehUmaDataFutura(requisicao.getDataHoraEnvio());
     if (TipoComunicacao.EMAIL.equals(requisicao.getTipoComunicacao())
         && (isNull(requisicao.getEmail()) || requisicao.getEmail().isBlank())) {
-      throw new IllegalArgumentException("O tipo de comunicacao EMAIL requer que o email seja preenchido");
+      throw new AgendamentoException(ERRO_TIPO_COMUNICACAO.getCodigo(), ERRO_TIPO_COMUNICACAO.getMensagem());
     }
   }
 
@@ -65,14 +71,16 @@ public class AgendamentoService {
    */
   private void ehUmaDataFutura(LocalDateTime dataHoraEnvio) {
     if (dataHoraEnvio.isBefore(LocalDateTime.now())) {
-      throw new IllegalArgumentException("Data inválida. A data de envio de ser uma data futura");
+      throw new AgendamentoException(ERRO_DATA_INVALIDA.getCodigo(),
+          ERRO_DATA_INVALIDA.getMensagem());
     }
   }
 
   private void validaDadosDestinatario(final RequisicaoAgendamentoDto requisicao) {
     if (destinatarioEhNull(requisicao)
         || (requisicao.getCelular().isBlank() && requisicao.getEmail().isBlank())) {
-      throw new IllegalArgumentException("É necessário que o email ou celular seja preenchido");
+      throw new AgendamentoException(ERRO_DESTINATARIO_OBRIGATORIO.getCodigo(),
+          ERRO_DESTINATARIO_OBRIGATORIO.getMensagem());
     }
   }
 
